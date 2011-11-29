@@ -236,11 +236,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           return null;
       }
 
-      // Round down font size
-      int baseSize = (int) Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
-      // If this function is called before the window is openned we get 0
-      if (baseSize == 0)
-        baseSize = (int) fontSize;
+      int baseSize = (int) fontSize;
+
       // Generate the asset key we'll use to store this font
       string key = family.Name + "::" + baseSize;
 

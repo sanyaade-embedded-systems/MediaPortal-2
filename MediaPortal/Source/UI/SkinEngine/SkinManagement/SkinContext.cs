@@ -46,12 +46,18 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static SkinResources _skinResources = new Skin("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     private static Form _form;
     private static DateTime _frameRenderingStartTime;
-    private static float _fps = 0;
     private static volatile Thread _renderThread = null;
 
     public static uint SystemTickCount;
 
     #endregion
+
+    public enum RenderModeType
+    {
+      SleepForceImmediate,
+      NoSleepPresentNone,
+      NoSleepForceImmediate
+    }
 
     public static event SkinResourcesChangedHandler SkinResourcesChanged
     {
@@ -111,6 +117,72 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
+    /// Get or Sets different RenderModes (affects frame sync and present mode).
+    /// </summary>
+    public static RenderModeType RenderMode
+    {
+      get
+      {
+        return GraphicsDevice.RenderMode;
+      }
+      set
+      {
+        GraphicsDevice.RenderMode = value;
+      }
+    }
+
+    /// <summary>
+    /// Toggles between different RenderModes (affects frame sync and present mode).
+    /// </summary>
+    public static void NextRenderMode()
+    {
+      RenderMode = (RenderModeType)((((int)RenderMode)+1) % 3);
+    }
+
+    /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately after DeviceEx.BeginScene.
+    /// </summary>
+    public static event EventHandler DeviceSceneBegin
+    {
+      add { GraphicsDevice.DeviceSceneBegin += value; }
+      remove { GraphicsDevice.DeviceSceneBegin -= value; }
+    }
+
+    /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately before DeviceEx.EndScene.
+    /// </summary>
+    public static event EventHandler DeviceSceneEnd
+    {
+      add { GraphicsDevice.DeviceSceneEnd += value; }
+      remove { GraphicsDevice.DeviceSceneEnd -= value; }
+    }
+
+    /// <summary>
+    /// Exposes an event of the rendering process. It gets fired immediately after DeviceEx.PresentEx.
+    /// </summary>
+    public static event EventHandler DeviceScenePresented
+    {
+      add { GraphicsDevice.DeviceScenePresented += value; }
+      remove { GraphicsDevice.DeviceScenePresented -= value; }
+    }
+
+    /// <summary>
+    /// Gets the back-buffer width of the DeviceEx.
+    /// </summary>
+    public static int BackBufferWidth
+    {
+      get { return GraphicsDevice.Width; }
+    }
+
+    /// <summary>
+    /// Gets the back-buffer height of the DeviceEx.
+    /// </summary>
+    public static int BackBufferHeight
+    {
+      get { return GraphicsDevice.Height; }
+    }
+
+    /// <summary>
     /// Returns the current display mode used in the SkinEngine.
     /// </summary>
     public static DisplayMode CurrentDisplayMode
@@ -138,44 +210,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _skinResources = value;
         _skinResourcesChangedDelegate.Fire(new object[] {_skinResources});
       }
-    }
-
-    /// <summary>
-    /// Defines the maximum zoom in the Y direction. Setting a Y zoom of <see cref="MaxZoomHeight"/>
-    /// given the current active skin will fill the skin contents to the complete Y area.
-    /// </summary>
-    /// <remarks>
-    /// X and Y zoom settings are independent because of different aspect ratios.
-    /// Please also note that at a given time, screenfiles from multiple skins may be shown at the
-    /// screen (window plus dialog). Everytime it is possible that a skinfile from the default skin
-    /// is shown. The returned value by this property only takes respect of the current active skin.
-    /// </remarks>
-    /// TODO: to be removed
-    public static float MaxZoomHeight
-    {
-      get { return GraphicsDevice.DesktopHeight / (float) _skinResources.SkinHeight; }
-    }
-
-    /// <summary>
-    /// Gets the maximum zoom in the X direction. Setting an X zoom of <see cref="MaxZoomWidth"/>
-    /// given the current active skin will fill the skin contents to the complete X area.
-    /// </summary>
-    /// <remarks>
-    /// See the comment in <see cref="MaxZoomHeight"/>.
-    /// </remarks>
-    /// TODO: to be removed
-    public static float MaxZoomWidth
-    {
-      get { return GraphicsDevice.DesktopWidth / (float) _skinResources.SkinWidth; }
-    }
-
-    /// <summary>
-    /// Gets the current average fraction frames per seconds.
-    /// </summary>
-    public static float FPS
-    {
-      get { return _fps; }
-      internal set { _fps = value; }
     }
   }
 }

@@ -73,6 +73,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static Matrix TransformProjection;
     public static Matrix FinalTransform;
 
+    public static event EventHandler DeviceSceneBegin;
+    public static event EventHandler DeviceSceneEnd;
+    public static event EventHandler DeviceScenePresented;
+
+    // RenderModeType related fields
+    private static SkinContext.RenderModeType _currentRenderMode = SkinContext.RenderModeType.SleepForceImmediate;
+    private static Present _presentMode = Present.ForceImmediate;
+    private static bool _manualWaitFrame = true;
+
+
     public static void Initialize(Form window)
     {
       try
@@ -131,6 +141,35 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       get { return _msPerFrame; }
     }
 
+    /// <summary>
+    /// Gets or Sets the current RenderModeType.
+    /// </summary>
+    public static SkinContext.RenderModeType RenderMode
+    {
+      get
+      {
+        return _currentRenderMode;
+      }
+      set
+      {
+        _currentRenderMode = value;
+        switch (_currentRenderMode)
+        {
+          case SkinContext.RenderModeType.SleepForceImmediate:
+            _manualWaitFrame = true;
+            _presentMode = Present.ForceImmediate;
+            break;
+          case SkinContext.RenderModeType.NoSleepPresentNone:
+            _manualWaitFrame = false;
+            _presentMode = Present.None;
+            break;
+          case SkinContext.RenderModeType.NoSleepForceImmediate:
+            _manualWaitFrame = false;
+            _presentMode = Present.ForceImmediate;
+            break;
+        }
+      }
+    }
     private static void GetCapabilities()
     {
       _anisotropy = _device.Capabilities.MaxAnisotropy;
@@ -178,7 +217,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (frameRate == 0)
         frameRate = 1;
       _targetFrameRate = frameRate;
-      _msPerFrame = (int) (1000/_targetFrameRate);
+      _msPerFrame = (int) (1000 / _targetFrameRate);
     }
 
     private static void ResetDxDevice()
@@ -328,6 +367,23 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
+    /// Fires an event if listeners are available.
+    /// </summary>
+    /// <param name="eventHandler"></param>
+    private static void Fire(EventHandler eventHandler)
+    {
+      try
+      {
+        if (eventHandler != null)
+          eventHandler(null, EventArgs.Empty);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error executing render event handler:", e);
+      }
+    }
+
+    /// <summary>
     /// Renders the entire scene.
     /// </summary>
     /// <param name="doWaitForNextFame"><c>true</c>, if this method should wait to the correct frame start time
@@ -338,7 +394,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       if (_device == null || _deviceLost)
         return true;
 #if (MAX_FRAMERATE == false)
-      if (doWaitForNextFame)
+      if (_manualWaitFrame && doWaitForNextFame)
         WaitForNextFrame();
 #endif
       _frameRenderingStartTime = DateTime.Now;
@@ -349,23 +405,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
           _device.BeginScene();
 
+          Fire(DeviceSceneBegin);
+
           _screenManager.Render();
 
-          _device.EndScene();
-          _device.PresentEx(Present.ForceImmediate);
+          Fire(DeviceSceneEnd);
 
-          _fpsCounter += 1;
-          TimeSpan ts = DateTime.Now - _fpsTimer;
-          if (ts.TotalSeconds >= 1.0f)
-          {
-            float secs = (float) ts.TotalSeconds;
-            SkinContext.FPS = _fpsCounter / secs;
-#if PROFILE_FRAMERATE
-            ServiceRegistration.Get<ILogger>().Debug("RenderLoop: {0} frames per second, {1} total frames until last measurement", SkinContext.FPS, _fpsCounter);
-#endif
-            _fpsCounter = 0;
-            _fpsTimer = DateTime.Now;
-          }
+          _device.EndScene();
+          _device.PresentEx(_presentMode);
+
+          Fire(DeviceScenePresented);
         }
         catch (Direct3D9Exception e)
         {
