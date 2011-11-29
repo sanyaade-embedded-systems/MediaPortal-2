@@ -54,13 +54,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScimoreDb", "Backend\Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BDHandler\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCDResourceProvider", "Extensions\ResourceProviders\AudioCDResourceProvider\AudioCDResourceProvider.csproj", "{A492604D-592C-425F-9DDD-A121BD6DE0B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsoResourceProvider", "Extensions\ResourceProviders\IsoResourceProvider\IsoResourceProvider.csproj", "{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscUtils", "Extensions\DiscUtils\DiscUtils.csproj", "{B368925B-5794-4931-9F3F-E143F6BB7BE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "..\Incubator\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,10 +138,6 @@ Global
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Debug|x86.Build.0 = Debug|x86
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Release|x86.ActiveCfg = Release|x86
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Release|x86.Build.0 = Release|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.ActiveCfg = Debug|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.Build.0 = Debug|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.ActiveCfg = Release|x86
-		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.Build.0 = Release|x86
 		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Debug|x86.ActiveCfg = Debug|x86
 		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Debug|x86.Build.0 = Debug|x86
 		{A492604D-592C-425F-9DDD-A121BD6DE0B5}.Release|x86.ActiveCfg = Release|x86
@@ -154,6 +150,10 @@ Global
 		{B368925B-5794-4931-9F3F-E143F6BB7BE5}.Debug|x86.Build.0 = Debug|x86
 		{B368925B-5794-4931-9F3F-E143F6BB7BE5}.Release|x86.ActiveCfg = Release|x86
 		{B368925B-5794-4931-9F3F-E143F6BB7BE5}.Release|x86.Build.0 = Release|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.ActiveCfg = Debug|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Debug|x86.Build.0 = Debug|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.ActiveCfg = Release|x86
+		{BA0837F8-2626-4378-8BF2-963574C1E133}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
