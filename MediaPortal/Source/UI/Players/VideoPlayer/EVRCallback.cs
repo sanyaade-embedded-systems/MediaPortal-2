@@ -72,18 +72,18 @@ namespace MediaPortal.UI.Players.Video
     private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
     private Size _aspectRatio = Size.Empty;
-    private Surface _surface = null;
-    private SizeF _surfaceMaxUV = Size.Empty;
+    private Texture _texture = null;
+    private SizeF _surfaceMaxUV = new SizeF(1, 1);
 
-    private readonly DeviceEx _device;
     private readonly RenderDlgt _renderDlgt;
+    private readonly Action _onTextureInvalidated;
 
     #endregion
 
-    public EVRCallback(RenderDlgt renderDlgt)
+    public EVRCallback(RenderDlgt renderDlgt, Action onTextureInvalidated)
     {
+      _onTextureInvalidated = onTextureInvalidated;
       _renderDlgt = renderDlgt;
-      _device = SkinContext.Device;
     }
 
     public void Dispose()
@@ -100,9 +100,9 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
-    public Surface Surface
+    public Texture Texture
     {
-      get { return _surface; }
+      get { return _texture; }
     }
 
     public object SurfaceLock
@@ -158,9 +158,9 @@ namespace MediaPortal.UI.Players.Video
     /// This function returns the pre-calculated maximum texture coordinates required to display the 
     /// frame without the border.
     /// </remarks>
-    public SizeF SurfaceMaxUV 
+    public SizeF SurfaceMaxUV
     {
-      get { return _surfaceMaxUV; } 
+      get { return _surfaceMaxUV; }
     }
 
     /// <summary>
@@ -176,7 +176,7 @@ namespace MediaPortal.UI.Players.Video
     private void FreeSurface()
     {
       lock (_lock)
-        FilterGraphTools.TryDispose(ref _surface);
+        FilterGraphTools.TryDispose(ref _texture);
     }
 
     #region IEVRPresentCallback implementation
@@ -184,40 +184,29 @@ namespace MediaPortal.UI.Players.Video
     public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
     {
       lock (_lock)
+      {
+        FreeSurface();
         if (dwSurface != 0 && cx != 0 && cy != 0)
         {
-          if (cx != _originalVideoSize.Width || cy != _originalVideoSize.Height)
-          {
-            FreeSurface();
-            _originalVideoSize = new Size(cx, cy);
-          }
-          Rectangle cropRect = _cropSettings == null ? new Rectangle(Point.Empty, _originalVideoSize) :
-              _cropSettings.CropRect(_originalVideoSize);
-          _croppedVideoSize = cropRect.Size;
-
-          _aspectRatio.Width = arx;
-          _aspectRatio.Height = ary;
-
-          if (_surface == null)
-          {
-            _surface = Surface.CreateRenderTarget(_device, _croppedVideoSize.Width, _croppedVideoSize.Height,
-                SkinContext.CurrentDisplayMode.Format, MultisampleType.None, 0, false);
-
-            SurfaceDescription desc = _surface.Description;
-            _surfaceMaxUV = new SizeF(_croppedVideoSize.Width / (float) desc.Width, _croppedVideoSize.Height / (float) desc.Height);
-          }
-
-          using (Surface surf = Surface.FromPointer(new IntPtr(dwSurface)))
-            _device.StretchRectangle(surf, cropRect, _surface, new Rectangle(Point.Empty, _croppedVideoSize), TextureFilter.None);
+          _texture = Texture.FromPointer(new IntPtr(dwSurface));
+          _originalVideoSize = _croppedVideoSize = new Size(cx, cy);
+          _aspectRatio = new Size(arx, ary);
         }
+      }
       VideoSizePresentDlgt vsp = VideoSizePresent;
       if (vsp != null)
       {
         vsp(this);
         VideoSizePresent = null;
       }
+
       if (_renderDlgt != null)
         _renderDlgt();
+
+      // Inform caller that we have changed the texture
+      if (_onTextureInvalidated != null)
+        _onTextureInvalidated();
+
       return 0;
     }
 
