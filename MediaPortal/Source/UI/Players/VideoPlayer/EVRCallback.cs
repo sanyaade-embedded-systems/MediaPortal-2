@@ -32,8 +32,8 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MediaPortal.UI.Players.Video.Tools;
-using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 
@@ -47,16 +47,16 @@ namespace MediaPortal.UI.Players.Video
   public interface IEVRPresentCallback
   {
     /// <summary>
-    /// Callback from EVRPresenter.dll to display a DirectX surface.
+    /// Callback from EVRPresenter.dll to display a DirectX texture.
     /// </summary>
     /// <param name="cx">Video width.</param>
     /// <param name="cy">Video height.</param>
     /// <param name="arx">Aspect Ratio X.</param>
     /// <param name="ary">Aspect Ratio Y.</param>
-    /// <param name="dwSurface">Address of the DirectX surface.</param>
+    /// <param name="dwTexture">Address of the DirectX surface.</param>
     /// <returns><c>0</c>, if the method succeeded, <c>!= 0</c> else.</returns>
     [PreserveSig]
-    int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwSurface);
+    int PresentTexture(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwTexture);
   }
 
   public delegate void RenderDlgt();
@@ -67,16 +67,15 @@ namespace MediaPortal.UI.Players.Video
   {
     #region Variables
 
+    private const int MAX_RENDER_TIME = 10; // the maximum time in ms we will wait for render of scene to finish
     private readonly object _lock = new object();
-    private CropSettings _cropSettings = null;
-    private Size _croppedVideoSize = Size.Empty;
     private Size _originalVideoSize = Size.Empty;
     private Size _aspectRatio = Size.Empty;
     private Texture _texture = null;
-    private SizeF _surfaceMaxUV = new SizeF(1, 1);
 
     private readonly RenderDlgt _renderDlgt;
     private readonly Action _onTextureInvalidated;
+    private readonly ManualResetEvent _renderFinished = new ManualResetEvent(false);
 
     #endregion
 
@@ -84,6 +83,7 @@ namespace MediaPortal.UI.Players.Video
     {
       _onTextureInvalidated = onTextureInvalidated;
       _renderDlgt = renderDlgt;
+      SkinContext.DeviceSceneEnd += RenderComplete;
     }
 
     public void Dispose()
@@ -95,8 +95,8 @@ namespace MediaPortal.UI.Players.Video
     #region Public properties and events
 
     /// <summary>
-    /// The first time the <see cref="OriginalVideoSize"/> and <see cref="CroppedVideoSize"/> properties are
-    /// present is when the EVR presenter delivered the first video frame. At that time, this event will be raised.
+    /// The first time the <see cref="OriginalVideoSize"/> property is present is when the EVR presenter delivered the first video frame. 
+    /// At that time, this event will be raised.
     /// </summary>
     public event VideoSizePresentDlgt VideoSizePresent;
 
@@ -105,35 +105,9 @@ namespace MediaPortal.UI.Players.Video
       get { return _texture; }
     }
 
-    public object SurfaceLock
+    public object TextureLock
     {
       get { return _lock; }
-    }
-
-    /// <summary>
-    /// Gets the size of the video image which contains the current frame.
-    /// </summary>
-    public Size ImageSize
-    {
-      get { return _croppedVideoSize; }
-    }
-
-    /// <summary>
-    /// If this property is set to a not <c>null</c> value, the video image will be cropped before it is copied into
-    /// the frame <see cref="Texture"/>.
-    /// </summary>
-    public CropSettings CropSettings
-    {
-      get { return _cropSettings; }
-      set { _cropSettings = value; }
-    }
-
-    /// <summary>
-    /// Gets the size of the video frame after it has been cropped using the provided <see cref="CropSettings"/>.
-    /// </summary>
-    public Size CroppedVideoSize
-    {
-      get { return _croppedVideoSize; }
     }
 
     /// <summary>
@@ -142,25 +116,6 @@ namespace MediaPortal.UI.Players.Video
     public Size OriginalVideoSize
     {
       get { return _originalVideoSize; }
-    }
-
-    /// <summary>
-    /// Returns the maximum UV coords of the render frame texture.
-    /// </summary>
-    /// <remarks>
-    /// Standard/Legacy DirectX limits texture surface/texture sizes to power-of-2. If a texture
-    /// is created with a non-power-of-2 size it is rounded up, which results in an empty border 
-    /// around the actual texture. By comparing the desired size with the actual size of the surface 
-    /// we can determine the maximum texture coordinates that will display the whole image, in this 
-    /// case a video frame, without showing any of the border. This would be [1.0f, 1.0f] for a 
-    /// power-of-2 texture, and smaller for a non-power-of-2 texture.
-    /// 
-    /// This function returns the pre-calculated maximum texture coordinates required to display the 
-    /// frame without the border.
-    /// </remarks>
-    public SizeF SurfaceMaxUV
-    {
-      get { return _surfaceMaxUV; }
     }
 
     /// <summary>
@@ -181,15 +136,17 @@ namespace MediaPortal.UI.Players.Video
 
     #region IEVRPresentCallback implementation
 
-    public int PresentSurface(short cx, short cy, short arx, short ary, uint dwSurface)
+    public int PresentTexture(short cx, short cy, short arx, short ary, uint dwTexture)
     {
+      _renderFinished.Reset();
+
       lock (_lock)
       {
         FreeSurface();
-        if (dwSurface != 0 && cx != 0 && cy != 0)
+        if (dwTexture != 0 && cx != 0 && cy != 0)
         {
-          _texture = Texture.FromPointer(new IntPtr(dwSurface));
-          _originalVideoSize = _croppedVideoSize = new Size(cx, cy);
+          _texture = Texture.FromPointer(new IntPtr(dwTexture));
+          _originalVideoSize = new Size(cx, cy);
           _aspectRatio = new Size(arx, ary);
         }
       }
@@ -200,14 +157,21 @@ namespace MediaPortal.UI.Players.Video
         VideoSizePresent = null;
       }
 
-      if (_renderDlgt != null)
-        _renderDlgt();
-
       // Inform caller that we have changed the texture
       if (_onTextureInvalidated != null)
         _onTextureInvalidated();
 
+      if (_renderDlgt != null)
+        _renderDlgt();
+
+      // Wait until rendering of scene is done, this also blocks EVR presenter, so the current frame data keeps untouched.
+      _renderFinished.WaitOne(MAX_RENDER_TIME);
       return 0;
+    }
+
+    void RenderComplete(object sender, EventArgs e)
+    {
+      _renderFinished.Set();
     }
 
     #endregion

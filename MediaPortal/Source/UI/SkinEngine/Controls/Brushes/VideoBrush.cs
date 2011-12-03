@@ -33,7 +33,6 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 using SlimDX;
 using MediaPortal.UI.Presentation.Players;
@@ -72,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected int _lastDeviceHeight;
     protected Vector4 _lastFrameData;
     protected RectangleF _lastVertsBounds;
-    protected Texture _texture = null;
+    protected Texture _texture;
     protected volatile bool _refresh = true;
 
     #endregion
@@ -305,24 +304,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       // NOTE: It appears that render textures are always allocated to the exact size (not nearest power-of-2), which makes this SurfaceMaxUV stuff
       // unnecessary. It is unclear whether this is how it is done by every graphics driver though, so I'll leave it in for the 
       // time being.
-      SizeF maxuv = player.SurfaceMaxUV;
-      lock (player.SurfaceLock)
+      SizeF maxuv = new SizeF(1f, 1f);
+      lock (player.TextureLock)
       {
-        Surface playerSurface = player.Surface;
-        if (playerSurface == null)
+        _texture = player.Texture;
+        if (_texture == null)
           return false;
-        DeviceEx device = SkinContext.Device;
-        SurfaceDescription desc = playerSurface.Description;
-        SurfaceDescription? textureDesc = _texture == null ? new SurfaceDescription?() : _texture.GetLevelDescription(0);
-        if (!textureDesc.HasValue || textureDesc.Value.Width != desc.Width || textureDesc.Value.Height != desc.Height)
-        {
-          TryDispose(ref _texture);
-          _texture = new Texture(device, desc.Width, desc.Height, 1, Usage.RenderTarget, SkinContext.CurrentDisplayMode.Format, Pool.Default);
-        }
-        using (Surface target = _texture.GetSurfaceLevel(0))
-          device.StretchRectangle(playerSurface, target, TextureFilter.None);
+
+        // TODO: implement CropSettings handling directly in ImageContext by changing texture coordinates
+        return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
       }
-      return _imageContext.StartRender(renderContext, _scaledVideoSize, _texture, maxuv.Width, maxuv.Height, BorderColor.ToArgb(), _lastFrameData);
     }
 
     public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)

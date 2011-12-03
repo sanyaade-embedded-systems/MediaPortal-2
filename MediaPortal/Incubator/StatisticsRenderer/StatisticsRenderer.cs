@@ -374,9 +374,9 @@ namespace MediaPortal.Plugins.StatisticsRenderer
       for (int index = 0; index <= 1; index++)
       {
         ISlimDXVideoPlayer player = pm[index] as ISlimDXVideoPlayer;
-        if (player != null && player.Surface != null)
+        if (player != null && player.Texture != null)
         {
-          SurfaceDescription desc = player.Surface.Description;
+          SurfaceDescription desc = player.Texture.GetLevelDescription(0);
           playerInfos += String.Format("\r\nPlayer {0}: Resolution {1}x{2}", index, desc.Width, desc.Height);
         }
       }

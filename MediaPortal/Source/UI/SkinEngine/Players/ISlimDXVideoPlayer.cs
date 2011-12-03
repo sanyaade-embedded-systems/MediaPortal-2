@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.UI.Presentation.Players;
 using SlimDX.Direct3D9;
 
@@ -47,30 +46,16 @@ namespace MediaPortal.UI.SkinEngine.Players
     /// <returns><c>true</c>, if this player is able to call the given <paramref name="dlgt"/> for each frame. If this
     /// method returns <c>false</c>, the default render thread will continue to render, which might cause flickering.</returns>
     bool SetRenderDelegate(RenderDlgt dlgt);
-
+    
     /// <summary>
-    /// Returns the maximum texture UV coords for displaying the complete frame. The frame texture must contain
-    /// the cropped video image at its coordinates (0; 0).
+    /// Returns the render texture for the current frame. May be <c>null</c>.
     /// </summary>
-    /// <remarks>
-    /// Standard (legacy) DirectX requires that all textures have power-of-2 dimensions. When a texture is created of
-    /// non-power-of-2 dimensions it's size is rounded up and an empty border is used to fill the extra space, which 
-    /// means that the texture coordinates of the frame (without the border) within the texture are no longer [1.0, 1.0]. 
-    /// 
-    /// This function proivdes the correct texture coordinates to use to display the whole frame without any 
-    /// border.
-    /// </remarks>
-    SizeF SurfaceMaxUV { get; }
-
-    /// <summary>
-    /// Returns the render surface for the current frame. May be <c>null</c>.
-    /// </summary>
-    Surface Surface { get; } 
+    Texture Texture { get; } 
 
     /// <summary>
     /// Returns a mutex object to lock while accessing the <see cref="Texture"/>.
     /// </summary>
-    object SurfaceLock { get; }
+    object TextureLock { get; }
 
     /// <summary>
     /// Releases any GUI resources.

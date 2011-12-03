@@ -325,7 +325,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Create the Allocator / Presenter object
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated) { CropSettings = _cropSettings };
+        _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated);
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
@@ -730,32 +730,31 @@ namespace MediaPortal.UI.Players.Video
       get { return (_initialized && _evrCallback != null) ? _evrCallback.Texture : null; }
     }
 
-    public object SurfaceLock
+    public object TextureLock
     {
       get
       {
         EVRCallback callback = _evrCallback;
-        return callback == null ? _syncObj : callback.SurfaceLock;
+        return callback == null ? _syncObj : callback.TextureLock;
       }
     }
 
-    public Surface Surface
+    public Texture Texture
     {
       get
       {
-        lock (SurfaceLock)
+        lock (TextureLock)
         {
           Texture videoTexture = RawVideoTexture;
-          Surface videoSurface = RawVideoTexture != null ? RawVideoTexture.GetSurfaceLevel(0) : null;
           if (!_textureInvalid)
-            return videoSurface;
+            return videoTexture;
 
           if (videoTexture == null || videoTexture.Disposed)
             return null;
 
           PostProcessTexture(videoTexture);
           _textureInvalid = false;
-          return videoSurface;
+          return videoTexture;
         }
       }
     }
@@ -772,11 +771,6 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
     { }
-
-    public SizeF SurfaceMaxUV
-    {
-      get { return (_evrCallback == null) ? new SizeF(1.0f, 1.0f) : _evrCallback.SurfaceMaxUV; }
-    }
 
     public IGeometry GeometryOverride
     {
@@ -1265,7 +1259,7 @@ namespace MediaPortal.UI.Players.Video
       if (_graphBuilder != null)
       {
         FreeEvrCallback();
-        _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated) { CropSettings = _cropSettings };
+        _evrCallback = new EVRCallback(RenderFrame, OnTextureInvalidated);
         _evrCallback.VideoSizePresent += OnVideoSizePresent;
         AddEvr();
         IEnumPins enumer;
