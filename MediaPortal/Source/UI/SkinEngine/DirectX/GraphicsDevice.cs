@@ -303,6 +303,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             _setup.BuildPresentParamsFromSettings();
             _device.ResetEx(_setup.PresentParameters);
 
+            RenderMode = SkinContext.RenderModeType.Default;
+
             ResetPerformanceData();
 
             Capabilities deviceCapabilities = _device.Capabilities;
