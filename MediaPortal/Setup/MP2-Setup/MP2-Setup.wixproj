@@ -31,7 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Client\ClientFeatures.wxs" />
-    <Compile Include="Dokan\Dokan.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
@@ -56,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Client" />
-    <Folder Include="Dokan" />
     <Folder Include="Fragments" />
     <Folder Include="Language" />
     <Folder Include="xslt" />
