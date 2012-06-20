@@ -22,13 +22,17 @@
 
 #endregion
 
+using System;
+using System.Drawing;
 using MediaPortal.Common.General;
+using MediaPortal.UI.Players.Image.Animation;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
+using Stretch = MediaPortal.UI.SkinEngine.Controls.Visuals.Stretch;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
@@ -79,6 +83,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected AbstractProperty _stretchProperty;
     protected AbstractProperty _viewPortProperty;
     protected AbstractProperty _tileModeProperty;
+    protected AbstractProperty _animationProperty;
 
     protected bool _refresh = true;
     protected bool _simplemode = false;
@@ -86,14 +91,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Vector4 _textureViewport;
     protected Vector4 _brushTransform;
     protected Matrix _relativeTransformCache;
+    protected DateTime _playbackStartTime;
+    protected TimeSpan _slideShowImageDuration;
+
     #endregion
 
     #region Ctor
 
     protected TileBrush()
     {
+      _playbackStartTime = DateTime.Now;
+      _slideShowImageDuration = TimeSpan.FromSeconds(4);
       Init();
       Attach();
+      Animation = new KenBurnsAnimator();
+      Animation.Initialize();
     }
 
     public override void Dispose()
@@ -109,6 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty = new SProperty(typeof(Stretch), Stretch.Fill);
       _tileModeProperty = new SProperty(typeof(TileMode), TileMode.None);
       _viewPortProperty = new SProperty(typeof(Vector4), new Vector4(0, 0, 1, 1));
+      _animationProperty = new SProperty(typeof(IImageAnimator), null);
     }
 
     void Attach()
@@ -118,6 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty.Attach(OnPropertyChanged);
       _tileModeProperty.Attach(OnPropertyChanged);
       _viewPortProperty.Attach(OnPropertyChanged);
+      _animationProperty.Attach(OnPropertyChanged);
     }
 
     void Detach()
@@ -127,6 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _stretchProperty.Detach(OnPropertyChanged);
       _tileModeProperty.Detach(OnPropertyChanged);
       _viewPortProperty.Detach(OnPropertyChanged);
+      _animationProperty.Detach(OnPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -139,6 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Stretch = b.Stretch;
       Tile = b.Tile;
       ViewPort = copyManager.GetCopy(b.ViewPort);
+      Animation = copyManager.GetCopy(b.Animation);
       _refresh = true;
       Attach();
     }
@@ -217,6 +233,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _tileModeProperty.SetValue(value); }
     }
 
+    public AbstractProperty AnimationProperty
+    {
+      get { return _animationProperty; }
+    }
+
+    public IImageAnimator Animation
+    {
+      get { return (IImageAnimator) _animationProperty.GetValue(); }
+      set { _animationProperty.SetValue(value); }
+    }
+
     #endregion
 
     /// <summary>
@@ -235,6 +262,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
+      _playbackStartTime = DateTime.Now;
       _refresh = true;
       base.OnPropertyChanged(prop, oldValue);
     }
@@ -408,7 +436,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_RELATIVE_TRANSFORM] = _relativeTransformCache;
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
-      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
+      _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = GetTextureClip(); //_textureViewport;
       _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
       _effect.Parameters[PARAM_U_OFFSET] = uvoffset.X;
       _effect.Parameters[PARAM_V_OFFSET] = uvoffset.Y;
@@ -420,7 +448,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _effect.Parameters[PARAM_TRANSFORM] = GetCachedFinalBrushTransform();
       _effect.Parameters[PARAM_OPACITY] = (float) (Opacity * renderContext.Opacity);
       _effect.Parameters[PARAM_TEXTURE_VIEWPORT] = _textureViewport;
-      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = _brushTransform;
+      _effect.Parameters[PARAM_BRUSH_TRANSFORM] = GetTextureClip(); // _brushTransform;
+
+    }
+
+    public Vector4 GetTextureClip()
+    {
+      // TODO: Execute animation in own timer
+      //lock (_syncObj)
+      TimeSpan displayTime = DateTime.Now - _playbackStartTime;
+      if (Animation == null)
+        return _brushTransform;
+
+      float animationProgress = (float) displayTime.TotalMilliseconds/(float) _slideShowImageDuration.TotalMilliseconds;
+      // Flatten progress function to be in the range 0-1
+      if (animationProgress < 0)
+        animationProgress = 0;
+      animationProgress = 1 - 1/(5*animationProgress*animationProgress + 1);
+      Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
+      Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
+      RectangleF textureClip = Animation.GetZoomRect(animationProgress, size, outputSize);
+      //_refresh = true;
+      var vector4 = new Vector4(textureClip.X*TextureMaxUV.X, textureClip.Y*TextureMaxUV.Y, 
+        textureClip.Width*TextureMaxUV.X, textureClip.Height*TextureMaxUV.Y);
+      return vector4;
     }
 
     protected virtual Vector4 AlignBrushInViewport(Vector2 brush_size)
