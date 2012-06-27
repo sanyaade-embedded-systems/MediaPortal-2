@@ -92,8 +92,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     protected Vector4 _textureViewport;
     protected Vector4 _brushTransform;
     protected Matrix _relativeTransformCache;
-    protected DateTime _playbackStartTime;
-    protected TimeSpan _animationDuration;
 
     #endregion
 
@@ -101,8 +99,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     protected TileBrush()
     {
-      _playbackStartTime = DateTime.Now;
-      _animationDuration = TimeSpan.FromSeconds(4);
       Init();
       Attach();
       Animation = new StillImageAnimator();
@@ -475,25 +471,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void Reset()
     {
-      _playbackStartTime = DateTime.Now;
+      if (Animation != null)
+        Animation.Initialize();
       _refresh = true;
     }
 
     public Vector4 GetTextureClip()
     {
       // TODO: Execute animation in own timer
-      TimeSpan displayTime = DateTime.Now - _playbackStartTime;
       if (Animation == null || !AnimationEnabled)
         return _brushTransform;
 
-      float animationProgress = (float) displayTime.TotalMilliseconds / (float) _animationDuration.TotalMilliseconds;
-      // Flatten progress function to be in the range 0-1
-      if (animationProgress < 0)
-        animationProgress = 0;
-      animationProgress = 1 - 1 / (5 * animationProgress * animationProgress + 1);
       Size size = new Size((int) BrushDimensions.X, (int) BrushDimensions.Y);
       Size outputSize = new Size((int) _vertsBounds.Width, (int) _vertsBounds.Height);
-      RectangleF textureClip = Animation.GetZoomRect(animationProgress, size, outputSize);
+      RectangleF textureClip = Animation.GetZoomRect(size, outputSize);
 
       var vector4 = new Vector4(
         -textureClip.X * TextureMaxUV.X, 

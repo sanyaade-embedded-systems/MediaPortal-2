@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     {
     }
 
-    public RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
+    public RectangleF GetZoomRect(Size imageSize, Size outputSize)
     {
       return _zoomRect;
     }

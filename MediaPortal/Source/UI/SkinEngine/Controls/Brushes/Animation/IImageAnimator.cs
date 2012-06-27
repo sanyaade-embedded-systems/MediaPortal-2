@@ -39,10 +39,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     /// <summary>
     /// Returns the zoom view rectangle for the current animation state for the given <see cref="outputSize"/>.
     /// </summary>
-    /// <param name="animationProgress">Progress of the animation, value between 0 (= start) and 1 (=end).</param>
     /// <param name="imageSize"></param>
     /// <param name="outputSize">Size of the output region.</param>
     /// <returns>Rectangle which contains fractions of the image size; X and Y coords go from 0 to 1.</returns>
-    RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize);
+    RectangleF GetZoomRect(Size imageSize, Size outputSize);
   }
 }

@@ -17,7 +17,7 @@
   <ResourceWrapper x:Key="BackgroundBrush">
     <VisualBrush AnimationEnabled="True">
       <VisualBrush.Animation>
-        <animation:KenBurnsAnimator />
+        <animation:KenBurnsAnimator Duration="20" /> <!-- Temporaty longer duration to have enough time to test effect in Series -->
       </VisualBrush.Animation>
       <VisualBrush.Visual>
         <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">

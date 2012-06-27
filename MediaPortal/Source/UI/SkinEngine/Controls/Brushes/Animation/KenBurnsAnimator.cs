@@ -35,14 +35,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
     protected static readonly Random _rnd = new Random(DateTime.Now.Millisecond);
 
     protected AbstractKenBurnsEffect _currentEffect = null;
+    protected DateTime _startTime;
+    protected TimeSpan _animationDuration = TimeSpan.FromSeconds(4);
 
     public void Initialize()
     {
       _currentEffect = GetRandomKenBurnsEffect();
+      _startTime = DateTime.Now;
     }
 
-    public RectangleF GetZoomRect(float animationProgress, Size imageSize, Size outputSize)
+    public double Duration
     {
+      get { return _animationDuration.TotalSeconds; }
+      set { _animationDuration = TimeSpan.FromSeconds(value); }
+    }
+
+    public RectangleF GetZoomRect(Size imageSize, Size outputSize)
+    {
+      TimeSpan displayTime = DateTime.Now - _startTime;
+      float animationProgress = (float) displayTime.TotalMilliseconds / (float) _animationDuration.TotalMilliseconds;
+      // Flatten progress function to be in the range 0-1
+      if (animationProgress < 0)
+        animationProgress = 0;
+      animationProgress = 1 - 1 / (5 * animationProgress * animationProgress + 1);
+
       return _currentEffect == null ? RectangleF.Empty : _currentEffect.GetZoomRect(animationProgress, imageSize, outputSize);
     }
 
