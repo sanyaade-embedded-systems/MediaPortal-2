@@ -24,10 +24,10 @@
 
 using System.Drawing;
 
-namespace MediaPortal.UI.Players.Image.Animation
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
   /// <summary>
-  /// Used for image animation effects in the <see cref="ImagePlayer"/>.
+  /// Used for image animation effects in the <see cref="TileBrush"/>.
   /// </summary>
   public interface IImageAnimator
   {

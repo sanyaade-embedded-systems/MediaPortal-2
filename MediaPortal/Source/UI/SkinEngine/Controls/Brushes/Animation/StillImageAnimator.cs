@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.UI.Players.Image.Animation
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
   /// <summary>
   /// StillImage animation class provides static images only.

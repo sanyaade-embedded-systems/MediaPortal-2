@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.UI.Players.Image.Animation
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
   /// <summary>
   /// Defines the zoom spot for a Ken Burns zoom effect. Depending on the orientation of the image (landscape/portrait), only the three

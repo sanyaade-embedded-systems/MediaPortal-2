@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 
-namespace MediaPortal.UI.Players.Image.Animation
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
   /// <summary>
   /// Abstract base class for Ken Burns pan and zoom effect classes.

@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 
-namespace MediaPortal.UI.Players.Image.Animation
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 {
   /// <summary>
   /// The Ken Burns effect uses different pan and zoom operations to animate an image.
