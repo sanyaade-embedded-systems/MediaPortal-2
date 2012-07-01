@@ -101,7 +101,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Init();
       Attach();
-      Animation = new StillImageAnimator();
     }
 
     public override void Dispose()
@@ -279,8 +278,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     private void OnAnimationChanged(AbstractProperty property, object oldvalue)
     {
-      if (Animation != null)
-        Animation.Initialize();
       Reset();
     }
 
