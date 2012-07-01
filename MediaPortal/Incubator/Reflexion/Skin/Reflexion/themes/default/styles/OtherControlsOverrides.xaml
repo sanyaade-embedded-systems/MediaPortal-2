@@ -17,48 +17,7 @@
   <ResourceWrapper x:Key="BackgroundBrush">
     <ImageBrush AnimationEnabled="False" ImageSource="Reflex.jpg"/>
   </ResourceWrapper>
-
-  <ResourceWrapper x:Key="FanartBackgroundBrush">
-    <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
-      <VisualBrush.Visual>
-        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-          <Grid.Resources>
-            <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-          </Grid.Resources>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
-            <Image.Source>
-              <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="FanArt" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
-            </Image.Source>
-            <Image.Triggers>
-              <Trigger Property="HasImage" Value="False">
-                <Setter TargetName="FanartVisualBrush" Property="Animation"/>
-                <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="False"/>
-              </Trigger>
-              <Trigger Property="HasImage" Value="True">
-                <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="True"/>
-                <Setter TargetName="FanartVisualBrush" Property="Animation">
-                  <Setter.Value>
-                    <animation:KenBurnsAnimator Duration="20" />
-                  </Setter.Value>
-                </Setter>
-              </Trigger>
-            </Image.Triggers>
-          </Image>
-        </Grid>
-      </VisualBrush.Visual>
-    </VisualBrush>
-  </ResourceWrapper>
-
+  
   <!-- Scaling constants -->
   <ResourceWrapper x:Key="HomeMenuItemScaleMax"        Resource="2.0" />
   <ResourceWrapper x:Key="HomeMenuItemInverseScaleMax" Resource="0.5" /> 
