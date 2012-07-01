@@ -15,10 +15,11 @@
 
   <!-- default brush used to paint the background of a page/window -->
   <ResourceWrapper x:Key="BackgroundBrush">
-    <VisualBrush AnimationEnabled="True">
-      <VisualBrush.Animation>
-        <animation:KenBurnsAnimator Duration="20" /> <!-- Temporaty longer duration to have enough time to test effect in Series -->
-      </VisualBrush.Animation>
+    <ImageBrush AnimationEnabled="False" ImageSource="Reflex.jpg"/>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="FanartBackgroundBrush">
+    <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
       <VisualBrush.Visual>
         <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Grid.Resources>
@@ -30,7 +31,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Image VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0" FallbackSource="Reflex.jpg">
+          <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
             <Image.Source>
               <fanart:FanArtImageSource 
                   fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
@@ -38,6 +39,20 @@
                   fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
                   fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
             </Image.Source>
+            <Image.Triggers>
+              <Trigger Property="HasImage" Value="False">
+                <Setter TargetName="FanartVisualBrush" Property="Animation"/>
+                <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="False"/>
+              </Trigger>
+              <Trigger Property="HasImage" Value="True">
+                <Setter TargetName="FanartVisualBrush" Property="AnimationEnabled" Value="True"/>
+                <Setter TargetName="FanartVisualBrush" Property="Animation">
+                  <Setter.Value>
+                    <animation:KenBurnsAnimator Duration="20" />
+                  </Setter.Value>
+                </Setter>
+              </Trigger>
+            </Image.Triggers>
           </Image>
         </Grid>
       </VisualBrush.Visual>

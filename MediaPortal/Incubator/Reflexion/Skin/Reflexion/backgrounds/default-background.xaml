@@ -9,5 +9,8 @@ Default background image - no media present
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Name="DefaultBackgroundScreen"
     >
-  <StackPanel Background="{ThemeResource BackgroundBrush}"/>
+  <DockPanel  VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <StackPanel DockPanel.Dock="Center" Background="{ThemeResource BackgroundBrush}"/>
+    <StackPanel DockPanel.Dock="Center" Background="{ThemeResource FanartBackgroundBrush}"/>
+  </DockPanel>
 </Screen>
