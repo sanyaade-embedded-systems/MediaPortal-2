@@ -7,7 +7,7 @@
     Source="screens\master_menu.xaml"
     >
   <Include.Resources>
-    <!-- TODO: menu is currently completly missing, use slide-in menu later -->
+
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.MoviesItemsHeader]"/>
     <ControlTemplate x:Key="Contents_Template">
       <Grid>
@@ -32,63 +32,41 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="560"/>
-            <ColumnDefinition Width="460"/>
-            <ColumnDefinition Width="820"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
           <!-- Screen and plot view -->
-          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="820" Height="570" Background="#E4000000">
-            <Border.RenderTransform>
-              <TranslateTransform X="-20"/>
-            </Border.RenderTransform>
-
+          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="1100" Height="600" Background="#E4000000">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="400"/>
               </Grid.RowDefinitions>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="400"/>
               </Grid.ColumnDefinitions>
-              <ScrollViewer Grid.Row="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+              <ScrollViewer Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" Focusable="True">
                 <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
               </ScrollViewer>
-              <Image Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
+              <Image Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
                 <Image.Source>
                   <fanart:FanArtImageSource 
                   fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="FanArt" 
+                  fanart:FanArtType="Poster" 
                   fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="580" fanart:MaxHeight="360"/>
+                  fanart:MaxWidth="400" fanart:MaxHeight="500"/>
                 </Image.Source>
               </Image>
             </Grid>
           </Border>
 
-          <!-- Poster view -->
-          <Border Grid.Column="1" Grid.Row="0" x:Name="CoverBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="460" Height="665" Background="#E4000000">
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Margin="15">
-              <Image.Source>
-                <fanart:FanArtImageSource 
-                fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                fanart:FanArtType="Poster" 
-                fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                fanart:MaxWidth="500" fanart:MaxHeight="660"/>
-              </Image.Source>
-            </Image>
-            
-          </Border>
-
           <!-- Itemslist -->
-          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="750" Background="#E4000000">
-            <Border.RenderTransform>
-              <TranslateTransform X="20"/>
-            </Border.RenderTransform>
-
+          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="450" Background="#E4000000">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
