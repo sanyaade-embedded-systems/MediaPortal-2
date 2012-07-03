@@ -34,7 +34,7 @@ Default background image - no media present
               <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
                 <Image.Source>
                   <MultiImageSource Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
-                    TransitionInOut="False" TransitionDuration="0.5">
+                    TransitionInOut="False" TransitionDuration="0.5" Wait="false">
                     <MultiImageSource.ImageSource>
                       <fanart:FanArtImageSource 
                         fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
