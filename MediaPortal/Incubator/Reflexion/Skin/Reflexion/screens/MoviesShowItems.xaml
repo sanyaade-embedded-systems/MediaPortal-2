@@ -38,7 +38,8 @@
           </Grid.ColumnDefinitions>
 
           <!-- Screen and plot view -->
-          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="1100" Height="600" Background="#E4000000">
+          <Border Grid.Column="2" Grid.Row="0" x:Name="FanartBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="1100" Height="600" Background="#E4000000"
+             VerticalAlignment="Bottom">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -56,17 +57,18 @@
               <Image Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Margin="15" FallbackSource="{Binding MediaItem}">
                 <Image.Source>
                   <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="Poster" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="400" fanart:MaxHeight="500"/>
+                    fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
+                    fanart:FanArtType="Poster" 
+                    fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+                    fanart:MaxWidth="400" fanart:MaxHeight="500"/>
                 </Image.Source>
               </Image>
             </Grid>
           </Border>
 
           <!-- Itemslist -->
-          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="450" Background="#E4000000">
+          <Border Grid.Column="0" Grid.Row="0" x:Name="ListBorder" BorderBrush="#000000" CornerRadius="20" BorderThickness="2" Width="560" Height="450" Background="#E4000000"
+            VerticalAlignment="Bottom">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -75,7 +77,7 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <ListView x:Name="MediaItemsList" Style="{ThemeResource MoviesListViewStyle}" ItemsSource="{Binding Items}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="10">
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" Margin="10">
                 <ListView.Resources>
                   <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
@@ -84,8 +86,7 @@
               <Label IsVisible="{Binding ShowListHint}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
               Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
-            </Grid>
-            
+            </Grid>            
           </Border>
 
           <Label IsVisible="{Binding !IsItemsValid}"
