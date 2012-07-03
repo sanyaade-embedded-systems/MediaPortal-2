@@ -33,11 +33,16 @@ Default background image - no media present
               </Grid.RowDefinitions>
               <Image x:Name="FanArtImageBackground" VerticalAlignment="Stretch" Stretch="Uniform" Grid.Row="0" Grid.Column="0">
                 <Image.Source>
-                  <fanart:FanArtImageSource 
-                  fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
-                  fanart:FanArtType="FanArt" 
-                  fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
-                  fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+                  <MultiImageSource Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
+                    TransitionInOut="False" TransitionDuration="0.5">
+                    <MultiImageSource.ImageSource>
+                      <fanart:FanArtImageSource 
+                        fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" 
+                        fanart:FanArtType="FanArt" 
+                        fanart:FanArtName="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtName}"
+                        fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+                    </MultiImageSource.ImageSource>
+                  </MultiImageSource>
                 </Image.Source>
                 <Image.Triggers>
                   <Trigger Property="HasImage" Value="False">
