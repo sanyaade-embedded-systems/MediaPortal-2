@@ -545,17 +545,15 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (!CheckConnection(indexProgram.ServerIndex))
         return false;
 
-      WebResult result;
       try
       {
-        result = TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime,
+        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime,
                                                        program.EndTime, WebScheduleType.Once);
       }
       catch
       {
         return false;
       }
-      return result.Result;
     }
 
     public bool RemoveSchedule(IProgram program)
@@ -567,16 +565,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       if (!CheckConnection(indexProgram.ServerIndex))
         return false;
 
-      WebResult result;
       try
       {
-        result = TvServer(indexProgram.ServerIndex).CancelSchedule(program.ProgramId);
+        return TvServer(indexProgram.ServerIndex).CancelSchedule(program.ProgramId);
       }
       catch
       {
         return false;
       }
-      return result.Result;
     }
     
     public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
