@@ -29,6 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Registry;
 using MediaPortal.Utilities;
 
@@ -110,13 +111,19 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       IDictionary<string, object> childSet = new Dictionary<string, object>();
       foreach (PluginItemMetadata item in items)
       {
-        ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(
-          item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
-        ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
-        if (childObj == null)
-          continue;
-        AddChildNode(childObj);
-        childSet.Add(metadata.Id, null);
+        try
+        {
+          ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
+          ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
+          if (childObj == null)
+            continue;
+          AddChildNode(childObj);
+          childSet.Add(metadata.Id, null);
+        }
+        catch (PluginInvalidStateException)
+        {
+          logger.Warn("Configuration: Plugin '{0}' is in invalid state. Skipping this configuration section. ", item.PluginRuntime.Metadata.Name);
+        }
       }
       ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(itemLocation);
       foreach (string childLocation in childLocations)

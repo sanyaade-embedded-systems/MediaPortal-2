@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="System.Invalid">&lt;invalid&gt;</string>
+  
   <string name="Configuration.Name">Settings</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Settings</string>
   <string name="Configuration.MainSettings">Main settings</string> <!-- 2nd Header for root configuration section -->
