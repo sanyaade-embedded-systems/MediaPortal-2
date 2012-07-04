@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DockPanel LastChildFill="False">
+    <Grid x:Name="ContentPanel" Margin="50,0,0,0"  SetFocusPrio="DefaultHigh">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="The space right to the small button does not focus the big button"/>
+      <Button Grid.Row="1" Grid.Column="1" Width="800" Height="200"/>
+      <Button Grid.Row="1" Grid.Column="1" Width="200" Height="100">
+        <Button.RenderTransform>
+          <TranslateTransform X="-200"/>
+        </Button.RenderTransform>
+      </Button>
+    </Grid>
+  </DockPanel>
+</Screen>
